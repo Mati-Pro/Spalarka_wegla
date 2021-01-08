@@ -7,8 +7,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 //#include <avr/pgmspace.h> 
-//#include <util/delay.h>
-#include "macros.h"
+#include <util/delay.h>		//wykorzystywany w OneWire.h
+#include "macros.h"			//wykorzystywany w OneWire.h
 //#include "USART.h"
 
 #define RTC_ADRES 0x68  //adres RTC I2C

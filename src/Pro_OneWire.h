@@ -9,10 +9,6 @@
 #ifndef PRO_ONEWIRE_H_
 #define PRO_ONEWIRE_H_
 
-#include <avr/io.h>
-#include <util/delay.h>
-#include "Pro_sysClock.h"
-
 //------------------------------------------OneWire---------------------
 #define OneWire_RESET_time1 500
 #define OneWire_RESET_time2 70

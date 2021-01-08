@@ -9,6 +9,7 @@
 #ifndef PRO_SYSCLOCK_H_
 #define PRO_SYSCLOCK_H_
 
+#define OPOZNIENIE_DELAY3	50000	//stale opoznienie (us) dla delay3
 
 //-------------------------------------Obs³uga sys_Clock---------------------------------
 //--
@@ -19,8 +20,6 @@
 //--
 //--------------------------------------------------------------------------------
 
-#define OPOZNIENIE_DELAY3	50000	//stale opoznienie (us) dla delay3
-#include <avr/io.h>
 
 //------------------------------------------sysClock---------------------
 struct SClk_ctr {

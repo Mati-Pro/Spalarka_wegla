@@ -9,9 +9,6 @@
 #ifndef PRO_LCD_H_
 #define PRO_LCD_H_
 
-#include <avr/io.h>
-#include "Pro_sysClock.h"
-
 #define LCD_kolejka_max		5
 
 #define LCD_RS 8

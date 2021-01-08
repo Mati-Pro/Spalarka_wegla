@@ -9,9 +9,6 @@
 #ifndef PRO_TWI_H_
 #define PRO_TWI_H_
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
 void i2c_setup(void);
 void i2c_service(void);
 void i2c_access(uint8_t adres, uint8_t mode, uint8_t pointer, uint8_t *tab, uint8_t count, uint8_t *aktywacja);
