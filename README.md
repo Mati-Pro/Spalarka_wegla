@@ -1,7 +1,7 @@
-Autor: Pawe≥ RogÛø
-KrakÛw 2021
+Autor: Pawe≈Ç Rog√≥≈º
+Krak√≥w 2021
 Hardware: Atmega328
 
-Projekt sterownika kot≥a automatycznego z podajnikiem úlimakowym z dodatkowa obs≥uga mieszacza, pomp CO, CWU i pod≥ogÛwki.
-Sterownik umoøliwia komunikacje po RS232 z wyniesionym pilotem. Jako zdalnego zadajnika parametrÛw araz rejestratorem
-parametrÛw spalania na karte SD.
+Projekt sterownika kot≈Ça automatycznego z podajnikiem ≈õlimakowym z dodatkowa obs≈Çuga mieszacza, pomp CO, CWU i pod≈Çog√≥wki.
+Sterownik umo≈ºliwia komunikacje po RS232 z wyniesionym pilotem jako zdalnego zadajnika parametr√≥w oraz rejestratorem
+parametr√≥w spalania na karte SD (too doo: wyniesony pilot).
