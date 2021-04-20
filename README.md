@@ -7,6 +7,7 @@ Sterownik umożliwia komunikacje po RS232 z wyniesionym pilotem jako zdalnego za
 parametrów spalania na karte SD (too doo: wyniesony pilot).
 
 Opis plików SRC:
+
 main - inicjacja układu i pętla głowna,
 mainPRG - program główny - realizacja funkcji MENU i ekranu głównego,
 sys1Wire - biblioteka obsługi czujników DS18B20 OneWire,
