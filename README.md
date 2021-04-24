@@ -10,7 +10,7 @@ Opis plików SRC:
 
 main - inicjacja układu i pętla głowna,
 
-mainPRG - program główny - realizacja funkcji MENU i ekranu głównego,
+mainPRG - program główny - realizacja funkcji MENU i ekranu głównego, procedury obsługi zegara RTC DS1307,
 
 sys1Wire - biblioteka obsługi czujników DS18B20 OneWire,
 
@@ -21,5 +21,7 @@ sysEnc - bibliotega obsługi enkodera rotacyjnego z uwzględnieniem "debouncing"
 sysLCD - bibliotega obsługi LCD 20x4. Komunikacja po I2C z wykorzystanie kolejkowania danych w buforze FIFO,
 
 sysTWI - biblioteka I2C z wykorzystaniem kolejkowania w buforze FIFO z wykorzystaniem przerwań,
+
+sysSPI - procedury obsługi MAX6675 po SPI,
 
 USART - bibliotega obsługi transmisji asynchronicznej bez wykorzystania przerwań. W chwili obecnej wykorzystywana do debagowania.
