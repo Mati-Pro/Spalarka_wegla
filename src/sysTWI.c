@@ -6,13 +6,17 @@
  */ 
 
 #include "sysTWI.h"
+#include "_PORT.h"
 
 extern uint8_t SysStatus;
 
+
 void TWI_setup(void)
 {
-	DDRC &= ~((1 << DDC5) | (1 << DDC4));
-	PORTC |=   (1 << PC5) | (1 << PC4);
+	DDR_TWI &= ~((1 << DD_SCL) | (1 << DD_SDA));
+	PORT_TWI |= (1 << P_SCL) | (1 << P_SDA);
+	//DDRC &= ~((1 << DDC5) | (1 << DDC4));
+	//PORTC |=   (1 << PC5) | (1 << PC4);
 	
 	TWBR = 72;
 	TWSR = (0 << TWPS1) | (0 << TWPS0);

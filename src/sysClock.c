@@ -7,7 +7,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "DEBUG.h"
+#include "_DEBUG.h"
 #include "sysClock.h"
 
 

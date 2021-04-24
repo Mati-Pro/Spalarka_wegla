@@ -12,7 +12,8 @@
 #include "sysLCD.h"
 #include "sysEnc.h"
 #include "sys1Wire.h"
-#include "DEBUG.h"
+#include "sysSPI.h"
+#include "_DEBUG.h"
 
 extern uint8_t SysStatus;
 extern uint8_t RTC_odczyt;
@@ -202,6 +203,7 @@ void Program_glowny(void)
 			OneWire_wyswietl_pomiar(0, LCD_row2, 13, &OneWire_SENSOR[2].H, &OneWire_SENSOR[2].L, OneWire_STATUS.przeterminowany & 0x04);	//CWU
 			OneWire_wyswietl_pomiar(0, LCD_row3, 13, &OneWire_SENSOR[3].H, &OneWire_SENSOR[3].L, OneWire_STATUS.przeterminowany & 0x20);	//grzejniki zasilanie
 			OneWire_wyswietl_pomiar(0, LCD_row4, 13, &OneWire_SENSOR[4].H, &OneWire_SENSOR[4].L, OneWire_STATUS.przeterminowany & 0x40);	//podlogowka
+			SPI_wyswietl_pomiar();	//spaliny
 			LCD_wyslij_bufor();
 			break;
 		}

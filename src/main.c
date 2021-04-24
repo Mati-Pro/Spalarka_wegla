@@ -7,13 +7,15 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "DEBUG.h"
+#include "_DEBUG.h"
 #include "sysClock.h"
 #include "sysTWI.h"
 #include "sysLCD.h"
 #include "sysEnc.h"
 #include "mainPRG.h"
+//#include "mainREGULATOR.h"
 #include "sys1Wire.h"
+#include "sysSPI.h"
 
 uint8_t SysStatus;
 uint8_t RTC_odczyt;
@@ -44,6 +46,7 @@ int main(void)
    Time_setup();   //inicjacja zegara systemowego
    TWI_setup();		//inicjacja interfejsu i2c
    LCD_i2c_setup();	//inicjacja pinów dla wyswietlacza lcd_i2c
+   
    SysStatus = 0;
    RTC_odczyt = 0;
    
@@ -54,6 +57,8 @@ int main(void)
 	   LCD_initiation();
 	   RTC_setup();
    }
+   
+   SPI_setup();		//inicjacja pinow dla SPI
    
    LCD_clear_bufor();
    Ekran_glowny();
@@ -72,6 +77,7 @@ int main(void)
 		Enc_handling();				//obs³uga przycisku encodera
 		TWI_handling();				//obs³uga i2c
 		LCD_handling();				//obsluga lcd
+		SPI_handling();				//obsluga SPI
 		Program_glowny();
     }
 }
@@ -111,4 +117,10 @@ ISR(PCINT2_vect)	//B
 ISR(PCINT1_vect)	//E
 {
 	Enc_isrE();
+}
+
+
+ISR(SPI_STC_vect)	//SPI
+{
+	SPI_isr();
 }

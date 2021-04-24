@@ -7,7 +7,8 @@
 
 #include "sysEnc.h"
 #include "sysClock.h"
-#include "DEBUG.h"
+#include "_DEBUG.h"
+#include "_PORT.h"
 
 volatile uint8_t Enc_pinA;
 volatile uint8_t Enc_tmpA = 1;
@@ -15,6 +16,7 @@ volatile uint8_t Enc_tmpB = 1;
 volatile uint8_t Enc_tmpE = 1;
 volatile uint8_t Enc_kierunek = 0;
 uint8_t Enc_x = 0;
+
 
 void Enc_setup(void)
 {		

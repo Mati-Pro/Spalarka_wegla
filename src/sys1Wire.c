@@ -32,7 +32,7 @@ uint8_t OneWire_SENSOR_NC[5] = {0,0,0,0,0};	//nieczulosc pomiaru
 
 void OneWire_setup(void)
 {
-	DDRC &= ~((1 << DDC2) | (1 << DDC1) | (1 << DDC0));
+	DDRC &=	~((1 << DDC2) | (1 << DDC1) | (1 << DDC0));
 	PORTC |=  (1 << PC2) | (1 << PC1) | (1 << PC0);
 	
 	DDRD &= ~((1 << DDD6) | (1 << DDD5));
@@ -264,10 +264,10 @@ void OneWire_sekwencjaOdczyt(void)
 			}
 			
 			//Regulator CO
-			if(OneWire_SENSOR[1].H >= Temp_CO.war)
+			if(OneWire_SENSOR[0].H >= Temp_CO.war)
 			clear_bit(IO_control_tmp, Pompa_CO);
 			
-			if(OneWire_SENSOR[1].H < Temp_CO.war - Temp_CO.his)
+			if(OneWire_SENSOR[0].H < Temp_CO.war - Temp_CO.his)
 			set_bit(IO_control_tmp, Pompa_CO);
 			
 			
