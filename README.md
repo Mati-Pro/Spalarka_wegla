@@ -12,7 +12,7 @@ main - inicjacja układu i pętla głowna,
 
 mainPRG - program główny - realizacja funkcji MENU i ekranu głównego, procedury obsługi zegara RTC DS1307,
 
-mainRegulator - program regulatora dwustanowego z ograniczeniem mocy od temperatury spalin (w trakcie edycji),
+mainREGULATOR - program regulatora dwustanowego z ograniczeniem mocy od temperatury spalin (w trakcie edycji),
 
 sys1Wire - biblioteka obsługi czujników DS18B20 OneWire,
 
