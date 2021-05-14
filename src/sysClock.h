@@ -11,7 +11,7 @@
 
 #include <avr/io.h>
 
-#define SC_kolejka_max		4
+#define SC_kolejka_max		6
 
 volatile uint8_t SC_pozycjaKolejki;
 

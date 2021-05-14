@@ -13,6 +13,7 @@
 #include "sysEnc.h"
 #include "sys1Wire.h"
 #include "sysSPI.h"
+#include "mainREGULATOR.h"
 #include "_DEBUG.h"
 
 extern uint8_t SysStatus;

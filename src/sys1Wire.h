@@ -26,14 +26,6 @@
 #define OneWire_READ_time3 70
 
 
-#define Pompa_CWU	1
-#define Pompa_CO	2
-#define Miesz_Gh	3
-#define Miesz_Gl	4
-#define Pompa_P		5
-#define Zes_PW		6
-
-
 struct _HL_type {
 	uint8_t  H;
 	uint8_t  L;
@@ -53,12 +45,6 @@ struct oneWire_rs {
 struct OneWire_st {
 	uint8_t przeterminowany;
 	uint8_t niewiarygodny;
-};
-
-//--------------------------temperatury---------------------
-struct  Nas_temp {
-	uint8_t war;
-	uint8_t his;
 };
 
 

@@ -9,11 +9,12 @@
 #include "sysClock.h"
 #include "mainPRG.h"
 #include "sysLCD.h"
+#include "_DEBUG.h"
 #include "_PORT.h"
 
 extern struct men Menu;
 
-volatile uint8_t nrBajtuISP = 4;	//normalnie 2
+volatile uint8_t nrBajtuISP;	//normalnie 2
 volatile uint16_t MAX6670_reg;
 uint16_t tempSpalin;
 uint8_t tempSpalin_niewiarygodny = 1;
@@ -23,45 +24,50 @@ uint8_t Display_offset;
 void SPI_setup(void)
 {
 	// wejscie SS, MOSI, SCK
-	DDR_SPI = (1 << DD_SS) | (1<<DD_MOSI) | (1<<DD_SCK);	//SS, MOSI, SCK -> OUTPUT
-	PORT_SPI &= ~(1 << P_SS);	//SS -> low
+	//DDR_SPI |= (1 << DD_SS) | (1<<DD_MOSI) | (1<<DD_SCK);	//SS, MOSI, SCK -> OUTPUT
+	//PORT_SPI &= ~(1 << P_SS);	//SS -> low
+	
+	DDRB |= (1<< PB5) | (1<< PB3) | ( 1 << PB2);
 	
 	SPCR = (1 << SPIE) | (1 << SPE) | (1 << MSTR) | (1 << CPHA) | (1 << SPR0);	//startSPI;
+	//SPDR = 0xff;
 }
 
 
 void SPI_handling(void)
-{
+{	
 	if(nrBajtuISP == 4)
-	{
-		Time_delay(500000, (uint8_t *)&nrBajtuISP, 0);
+	{		
 		tempSpalin_niewiarygodny = (MAX6670_reg >> 1) & 0x01;
 		tempSpalin = (MAX6670_reg >> 3) & 0xFFF;
 		tempSpalin /= 4;
+		
+		SPI_wyswietl_pomiar();
+		nrBajtuISP = 0;
+		//Time_delay(1000000, (uint8_t *)&nrBajtuISP, 0);
 	}
 	
-	SPI_wyswietl_pomiar();
 
 	if(nrBajtuISP == 1)
 	{
 		PORT_SPI &= ~(1 << P_SS);	//SS -> low
 		nrBajtuISP++;
-		SPCR = (1 << SPE);	//startSPI;
+		SPDR = 0xff;
 	}
 }
 
 
 void SPI_isr(void)
 {
-	if(nrBajtuISP == 2)
+	switch(nrBajtuISP)
 	{
-		MAX6670_reg = SPDR < 8;	//MSB
+		case 2:
+		MAX6670_reg = SPDR << 8;	//MSB
 		nrBajtuISP++;
-		SPCR = (1 << SPE);	//startSPI;
-	}
-	
-	if(nrBajtuISP == 3)
-	{
+		SPDR = 0xff;
+		break;
+		
+		case 3:
 		MAX6670_reg |= SPDR;	//LSB
 		nrBajtuISP++;
 		PORT_SPI |= (1 << P_SS);	//SS -> high

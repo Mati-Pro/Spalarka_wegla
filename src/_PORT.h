@@ -10,11 +10,11 @@
 #define PORT_H_
 
 //	PORTB
-#define PORT_SPI	PORTB
+#define PORT_SPI		PORTB
 #define P_SS		PB2
 
 //	DDRB
-#define DDR_SPI DDRB
+#define DDR_SPI		DDRB
 #define DD_SS	DDB2
 #define DD_MOSI	DDB3
 #define DD_MISO	DDB4
@@ -27,7 +27,7 @@
 #define P_SCL	PC5
 
 //	DDRC
-#define DDR_TWI	DDRC
+#define DDR_TWI		DDRC
 #define	DD_SDA	DDC4
 #define DD_SCL	DDC5
 

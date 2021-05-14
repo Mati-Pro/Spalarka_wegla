@@ -9,7 +9,7 @@
 #ifndef DEBUG_H_
 #define DEBUG_H_
 
-//#include "USART.h"
+#include "USART.h"
 
 //#define _DEBUG_
 //#define _DEBUG_LCD_init_
@@ -17,5 +17,9 @@
 
 //#define _DEBUG_sysClock_1
 //#define _DEBUG_sysClock_2
+
+//#define _DEBUG_sysSPI_isr
+//#define _DEBUG_sysSPI_setup
+//#define _DEBUG_sysSPI
 
 #endif /* DEBUG_H_ */

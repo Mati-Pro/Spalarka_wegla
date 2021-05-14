@@ -13,9 +13,10 @@
 #include "sysLCD.h"
 #include "sysEnc.h"
 #include "mainPRG.h"
-//#include "mainREGULATOR.h"
+#include "mainREGULATOR.h"
 #include "sys1Wire.h"
 #include "sysSPI.h"
+#include "USART.h"
 
 uint8_t SysStatus;
 uint8_t RTC_odczyt;
@@ -23,6 +24,9 @@ uint8_t RTC_reg[8];
 
 extern struct _HL_type OneWire_SENSOR[5];
 extern struct OneWire_st OneWire_STATUS;
+extern volatile uint8_t nrBajtuISP;
+
+extern uint8_t CO_krok;
 
 
 
@@ -41,14 +45,15 @@ int main(void)
 	initUSART();
 #endif // _DEBUG_
 
-   OneWire_setup();	//inicjacja dla portów DS18
-   Enc_setup();		//inicjalizacja portow encodera
-   Time_setup();   //inicjacja zegara systemowego
-   TWI_setup();		//inicjacja interfejsu i2c
-   LCD_i2c_setup();	//inicjacja pinów dla wyswietlacza lcd_i2c
+	OneWire_setup();	//inicjacja dla portów DS18
+	Enc_setup();		//inicjalizacja portow encodera
+	Time_setup();   //inicjacja zegara systemowego
+	TWI_setup();		//inicjacja interfejsu i2c
+	LCD_i2c_setup();	//inicjacja pinów dla wyswietlacza lcd_i2c
+	Regulator_setup();	//inicjacja pinow dla sterowania podajnikiem i wentylatorem
    
-   SysStatus = 0;
-   RTC_odczyt = 0;
+	SysStatus = 0;
+	RTC_odczyt = 0;
    
    
    while(SysStatus < 7)
@@ -78,7 +83,10 @@ int main(void)
 		TWI_handling();				//obs³uga i2c
 		LCD_handling();				//obsluga lcd
 		SPI_handling();				//obsluga SPI
-		Program_glowny();
+		
+		Regulator_handling();		//regulator CO CWU
+		
+		Program_glowny();			//MENU + Ekran Glowny + RTC
     }
 }
 
@@ -87,6 +95,14 @@ ISR(INT0_vect)	//przerwanie od SQ RTC
 {
 	if(RTC_odczyt == 5)
 	RTC_odczyt = 6;	//6 - odczyt RTC, 5 - neutralne
+	
+	nrBajtuISP = 1;
+}
+
+
+ISR(INT1_vect)	//przerwanie od synchronizacji AC
+{
+	//start licznika T1 do odliczenia przesuniecia fazowego
 }
 
 

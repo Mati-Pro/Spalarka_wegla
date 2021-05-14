@@ -11,6 +11,7 @@
 
 #include <avr/io.h>
 #include "sys1Wire.h"
+#include "mainREGULATOR.h"
 
 #define RTC_ADRES 0x68  //adres RTC I2C
 #define IO_ADRES 0x20  //adres ekspandera IO I2C

@@ -21,13 +21,7 @@ struct oneWire_ini OneWire_SEKWENCJA = {1, 1};
 struct oneWire_rs OneWire_RESET = {0, 1, 0};
 struct OneWire_st OneWire_STATUS = {0b1100111, 0b1100111};
 
-struct Nas_temp Temp_CWU= {31, 5};
-struct Nas_temp Temp_CO ={60, 4};
-struct Nas_temp Temp_Mx = {40, 1};
-
-uint8_t IO_control = 0;
-uint8_t IO_control_tmp = 0;
-uint8_t OneWire_SENSOR_NC[5] = {0,0,0,0,0};	//nieczulosc pomiaru
+uint8_t OneWire_SENSOR_NC[5] = {0,0,0,0,0};	//nieczulosc pomiaru - licznik niewiarygodnosci
 
 
 void OneWire_setup(void)
@@ -263,27 +257,7 @@ void OneWire_sekwencjaOdczyt(void)
 				OneWire_SENSOR[4].L = OneWire_SENSOR[4].L & 0x0F;
 			}
 			
-			//Regulator CO
-			if(OneWire_SENSOR[0].H >= Temp_CO.war)
-			clear_bit(IO_control_tmp, Pompa_CO);
-			
-			if(OneWire_SENSOR[0].H < Temp_CO.war - Temp_CO.his)
-			set_bit(IO_control_tmp, Pompa_CO);
-			
-			
-			//Regulator CWU
-			if(OneWire_SENSOR[2].H >= Temp_CWU.war)
-			clear_bit(IO_control_tmp, Pompa_CWU);
-			
-			if(OneWire_SENSOR[2].H < Temp_CWU.war - Temp_CWU.his)
-			set_bit(IO_control_tmp, Pompa_CWU);
-			
-			if(IO_control != IO_control_tmp)
-			{
-				IO_control = IO_control_tmp;
-				TWI_access(IO_ADRES, 5, ~IO_control, 0, 0, 0); //przkaznik 1 ON/OFF
-			}
-			
+			//Jesli nie MENU to wyswietl pomiar w ekranie glownym
 			if(Menu.aktywacja == 0)
 			{
 				OneWire_wyswietl_pomiar(1, LCD_row3, 2,  &OneWire_SENSOR[0].H, &OneWire_SENSOR[0].L, OneWire_STATUS.przeterminowany & 0x01);	//kociol zasilanie

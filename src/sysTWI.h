@@ -34,7 +34,7 @@
 
 #define TWI_ARBITRATION 0x38
 
-#define  TWI_kolejka_max	5
+#define  TWI_kolejka_max	6
 
 
 uint8_t TWI_kolejkaPointer;      //wskaünik bufora operacji
