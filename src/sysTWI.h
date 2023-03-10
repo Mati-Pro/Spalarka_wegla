@@ -34,7 +34,7 @@
 
 #define TWI_ARBITRATION 0x38
 
-#define  TWI_kolejka_max	6
+//#define  TWI_kolejka_max	6
 
 
 uint8_t TWI_kolejkaPointer;      //wskaünik bufora operacji
@@ -60,7 +60,8 @@ struct twi_bf {
 	uint8_t *f_aktywacja;
 };
 
-struct twi_bf TWI_kolejka[TWI_kolejka_max]; //bufor operacji dla i2c
+//struct twi_bf TWI_kolejka[TWI_kolejka_max]; //bufor operacji dla i2c
+struct twi_bf *TWI_kolejka;
 
 
 void TWI_setup(void);

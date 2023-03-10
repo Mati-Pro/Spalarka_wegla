@@ -81,10 +81,10 @@ void Enc_isrB(void)	//B
 	Enc_pinA = (PINB & 0x01);
 	
 	if (Enc_pinA == 0 && Enc_tmpA == 1 && Enc_tmpB == 0)
-	Enc_kierunek = 1;	//lewo
+	Enc_kierunek = 2;	//prawo
 	
 	if (Enc_pinA == 1 && Enc_tmpA == 0 && Enc_tmpB == 0)
-	Enc_kierunek = 2;	//prawo
+	Enc_kierunek = 1;	//lewo
 	
 	Enc_tmpA = Enc_pinA;
 }

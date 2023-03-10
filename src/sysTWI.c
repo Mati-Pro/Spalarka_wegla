@@ -5,6 +5,7 @@
  *  Author: Pawel Rogoz
  */ 
 
+#include <stdlib.h>
 #include "sysTWI.h"
 #include "_PORT.h"
 
@@ -28,6 +29,11 @@ void TWI_setup(void)
 
 void TWI_access(uint8_t adres, uint8_t mode, uint8_t pointer, uint8_t *tab, uint8_t count, uint8_t *aktywacja)
 {
+	if(TWI_kolejkaPointer == 0)	//jesli jeszcze nie bylo kolejki to stworz j¹
+		TWI_kolejka = (struct twi_bf *)calloc(TWI_kolejkaPointer + 1, sizeof(struct twi_bf));
+	else
+		TWI_kolejka = (struct twi_bf *)realloc(TWI_kolejka, (TWI_kolejkaPointer+1)*sizeof(struct twi_bf));
+	
 	TWI_kolejka[TWI_kolejkaPointer].adres = adres;
 	TWI_kolejka[TWI_kolejkaPointer].mode = mode;
 	TWI_kolejka[TWI_kolejkaPointer].data_pointer = pointer;
@@ -47,6 +53,9 @@ void TWI_access(uint8_t adres, uint8_t mode, uint8_t pointer, uint8_t *tab, uint
 		_TWISendStart();
 	}
 	
+	TWI_kolejkaPointer++;
+	
+	/*
 	if(TWI_kolejkaPointer < TWI_kolejka_max)
 	TWI_kolejkaPointer++;
 	else
@@ -56,6 +65,7 @@ void TWI_access(uint8_t adres, uint8_t mode, uint8_t pointer, uint8_t *tab, uint
 	{
 		TWI_handling();
 	}
+	*/
 }
 
 
@@ -71,7 +81,10 @@ void TWI_handling(void)
 		if(TWI_kolejkaPointer > 0)
 		{
 			for(uint8_t i = 0; i < TWI_kolejkaPointer; i++)
-			TWI_kolejka[i] = TWI_kolejka[i+1];
+				TWI_kolejka[i] = TWI_kolejka[i+1];
+			
+			//jesli kolejka ma zmniejszyc siê to zmniejsz tablice o kolejny element struktury	
+			TWI_kolejka = (struct twi_bf *)realloc(TWI_kolejka, (TWI_kolejkaPointer+1)*sizeof(struct twi_bf));
 			
 			TWI.reg = TWI_kolejka[0].reg;
 			TWI.adres = TWI_kolejka[0].adres;
@@ -84,6 +97,7 @@ void TWI_handling(void)
 		{
 			TWI.busy = 0;
 			SysStatus |= 4;
+			free(TWI_kolejka);	//zwolnij kolejke
 		}
 	}
 }

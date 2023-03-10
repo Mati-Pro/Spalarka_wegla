@@ -6,6 +6,7 @@
  */ 
 
 #include <avr/io.h>
+#include <stdlib.h>
 #include "sysClock.h"
 #include "sysTWI.h"
 #include "sysLCD.h"
@@ -17,7 +18,8 @@ struct LCD_ini LCD_init = {1,1};
 struct LCD_pr LCD_PRINT = {0, 0, 1};
 struct LCD_rs LCD_SEND = {0, 1, 0, 8};
 struct LCD_ctr LCD_CONTROL = {0, 0, 0};
-struct LCD_ctr LCD_kolejka[LCD_kolejka_max];	//bufor operacji dla lcd_print
+//struct LCD_ctr LCD_kolejka[LCD_kolejka_max];	//bufor operacji dla lcd_print
+struct LCD_ctr *LCD_kolejka;
 
 //------------------------------Inicjacja portów bitowych dla i2c_lcd-----------------------------
 void LCD_i2c_setup(void)
@@ -62,7 +64,7 @@ void LCD_wyslij_bufor(void)
 
 
 //------------------------------Procedura drukowania na lcd_print-----------------------------
-//  LCDprint(mode, r1_pointer, r1_lenght, r2_pointer, r2_lenght, *row1, *row2)
+//  LCDprint(mode, r1_pointer, r1_lenght, *row1)
 //
 //  mode  - tryb wyswietlania lcd
 //        1 - pierwszy wiersz
@@ -76,6 +78,11 @@ void LCD_wyslij_bufor(void)
 //--------------------------------------------------------------------------------------------
 void LCD_print(uint8_t mode, uint8_t r1_pointer, uint8_t r1_lenght, char *row1)
 {
+	if(LCD_kolejkaPointer == 0)	//jesli jeszcze nie bylo kolejki to stworz j¹
+		LCD_kolejka = (struct LCD_ctr *)calloc(LCD_kolejkaPointer + 1, sizeof(struct LCD_ctr));
+	else
+		LCD_kolejka = (struct LCD_ctr *)realloc(LCD_kolejka, (LCD_kolejkaPointer+1)*sizeof(struct LCD_ctr));
+	
 	LCD_kolejka[LCD_kolejkaPointer].mode = mode;
 	LCD_kolejka[LCD_kolejkaPointer].pointer1 = r1_pointer;
 	LCD_kolejka[LCD_kolejkaPointer].lenght1 = r1_lenght;
@@ -91,6 +98,9 @@ void LCD_print(uint8_t mode, uint8_t r1_pointer, uint8_t r1_lenght, char *row1)
 		LCD_CONTROL.row1 = row1;
 	}
 	
+	LCD_kolejkaPointer++;
+	
+	/*
 	if(LCD_kolejkaPointer < LCD_kolejka_max)
 	LCD_kolejkaPointer++;
 	else
@@ -103,6 +113,7 @@ void LCD_print(uint8_t mode, uint8_t r1_pointer, uint8_t r1_lenght, char *row1)
 		lcd_i2c_send();     //obs³uga wysylania komend do lcd_i2c
 		lcd_print();		//obs³uga drukowania na wyswietlaczu lcd
 	}
+	*/
 }
 
 
@@ -228,11 +239,14 @@ void lcd_print(void)
 			break;
 			
 			case 4:
+			//redukcja kolejki
 			LCD_kolejkaPointer--;
 			if(LCD_kolejkaPointer > 0)
 			{
 				for(uint8_t i = 0; i < LCD_kolejkaPointer; i++)
-				LCD_kolejka[i] = LCD_kolejka[i+1];
+					LCD_kolejka[i] = LCD_kolejka[i+1];
+				
+				LCD_kolejka = (struct LCD_ctr *)realloc(LCD_kolejka, (LCD_kolejkaPointer+1)*sizeof(struct LCD_ctr));
 
 				LCD_PRINT.step = 1;
 				LCD_CONTROL.mode = LCD_kolejka[0].mode;
@@ -244,6 +258,7 @@ void lcd_print(void)
 			{
 				LCD_PRINT.active = 0;
 				LCD_PRINT.step = 0;
+				free(LCD_kolejka);
 			}
 			break;
 		}

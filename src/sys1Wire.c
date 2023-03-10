@@ -13,10 +13,12 @@
 #include "sysLCD.h"
 #include "macros.h"
 #include "mainPRG.h"
+#include "USART.h"
 
 extern struct men Menu;
 
 struct _HL_type OneWire_SENSOR[5];
+struct _HL_type OneWire_CZUJNIK[5];
 struct oneWire_ini OneWire_SEKWENCJA = {1, 1};
 struct oneWire_rs OneWire_RESET = {0, 1, 0};
 struct OneWire_st OneWire_STATUS = {0b1100111, 0b1100111};
@@ -257,14 +259,106 @@ void OneWire_sekwencjaOdczyt(void)
 				OneWire_SENSOR[4].L = OneWire_SENSOR[4].L & 0x0F;
 			}
 			
+			uint8_t tempL;
+			
+			if(!(OneWire_STATUS.przeterminowany & 0x01))
+			{
+				OneWire_CZUJNIK[0].H = OneWire_SENSOR[0].H;
+				OneWire_CZUJNIK[0].L = OneWire_SENSOR[0].L;
+				
+				tempL  =  6 * (0x01 &  OneWire_CZUJNIK[0].L);
+				tempL += 12 * (0x01 & (OneWire_CZUJNIK[0].L >> 1));
+				tempL += 25 * (0x01 & (OneWire_CZUJNIK[0].L >> 2));
+				tempL += 50 * (0x01 & (OneWire_CZUJNIK[0].L >> 3));
+				OneWire_CZUJNIK[0].L = tempL/10;
+			}
+			else
+			{
+				OneWire_CZUJNIK[0].H = 0;
+				OneWire_CZUJNIK[0].L = 0;
+			}
+			
+			
+			if(!(OneWire_STATUS.przeterminowany & 0x02))
+			{
+				OneWire_CZUJNIK[1].H = OneWire_SENSOR[1].H;
+				OneWire_CZUJNIK[1].L = OneWire_SENSOR[1].L;
+				
+				tempL  =  6 * (0x01 &  OneWire_CZUJNIK[1].L);
+				tempL += 12 * (0x01 & (OneWire_CZUJNIK[1].L >> 1));
+				tempL += 25 * (0x01 & (OneWire_CZUJNIK[1].L >> 2));
+				tempL += 50 * (0x01 & (OneWire_CZUJNIK[1].L >> 3));
+				OneWire_CZUJNIK[1].L = tempL/10;
+			}
+			else
+			{
+				OneWire_CZUJNIK[1].H = 0;
+				OneWire_CZUJNIK[1].L = 0;
+			}
+			
+			
+			if(!(OneWire_STATUS.przeterminowany & 0x04))
+			{
+				OneWire_CZUJNIK[2].H = OneWire_SENSOR[2].H;
+				OneWire_CZUJNIK[2].L = OneWire_SENSOR[2].L;
+				
+				tempL  =  6 * (0x01 &  OneWire_CZUJNIK[2].L);
+				tempL += 12 * (0x01 & (OneWire_CZUJNIK[2].L >> 1));
+				tempL += 25 * (0x01 & (OneWire_CZUJNIK[2].L >> 2));
+				tempL += 50 * (0x01 & (OneWire_CZUJNIK[2].L >> 3));
+				OneWire_CZUJNIK[2].L = tempL/10;
+			}
+			else
+			{
+				OneWire_CZUJNIK[2].H = 0;
+				OneWire_CZUJNIK[2].L = 0;
+			}
+			
+			
+			if(!(OneWire_STATUS.przeterminowany & 0x20))
+			{
+				OneWire_CZUJNIK[3].H = OneWire_SENSOR[3].H;
+				OneWire_CZUJNIK[3].L = OneWire_SENSOR[3].L;
+				
+				tempL  =  6 * (0x01 &  OneWire_CZUJNIK[3].L);
+				tempL += 12 * (0x01 & (OneWire_CZUJNIK[3].L >> 1));
+				tempL += 25 * (0x01 & (OneWire_CZUJNIK[3].L >> 2));
+				tempL += 50 * (0x01 & (OneWire_CZUJNIK[3].L >> 3));
+				OneWire_CZUJNIK[3].L = tempL/10;
+			}
+			else
+			{
+				OneWire_CZUJNIK[3].H = 0;
+				OneWire_CZUJNIK[3].L = 0;
+			}
+			
+			
+			if(!(OneWire_STATUS.przeterminowany & 0x40))
+			{
+				OneWire_CZUJNIK[4].H = OneWire_SENSOR[4].H;
+				OneWire_CZUJNIK[4].L = OneWire_SENSOR[4].L;
+				
+				tempL  =  6 * (0x01 &  OneWire_CZUJNIK[4].L);
+				tempL += 12 * (0x01 & (OneWire_CZUJNIK[4].L >> 1));
+				tempL += 25 * (0x01 & (OneWire_CZUJNIK[4].L >> 2));
+				tempL += 50 * (0x01 & (OneWire_CZUJNIK[4].L >> 3));
+				OneWire_CZUJNIK[4].L = tempL/10;
+			}
+			else
+			{
+				OneWire_CZUJNIK[4].H = 0;
+				OneWire_CZUJNIK[4].L = 0;
+			}
+			
+			
 			//Jesli nie MENU to wyswietl pomiar w ekranie glownym
 			if(Menu.aktywacja == 0)
 			{
-				OneWire_wyswietl_pomiar(1, LCD_row3, 2,  &OneWire_SENSOR[0].H, &OneWire_SENSOR[0].L, OneWire_STATUS.przeterminowany & 0x01);	//kociol zasilanie
-				OneWire_wyswietl_pomiar(1, LCD_row4, 2,  &OneWire_SENSOR[1].H, &OneWire_SENSOR[1].L, OneWire_STATUS.przeterminowany & 0x02);	//kociol powrot
-				OneWire_wyswietl_pomiar(0, LCD_row2, 13, &OneWire_SENSOR[2].H, &OneWire_SENSOR[2].L, OneWire_STATUS.przeterminowany & 0x04);	//CWU
-				OneWire_wyswietl_pomiar(0, LCD_row3, 13, &OneWire_SENSOR[3].H, &OneWire_SENSOR[3].L, OneWire_STATUS.przeterminowany & 0x20);	//grzejniki zasilanie
-				OneWire_wyswietl_pomiar(0, LCD_row4, 13, &OneWire_SENSOR[4].H, &OneWire_SENSOR[4].L, OneWire_STATUS.przeterminowany & 0x40);	//podlogowka
+				OneWire_wyswietl_pomiar(1, LCD_row3, 2,  &OneWire_CZUJNIK[0].H, &OneWire_CZUJNIK[0].L, OneWire_STATUS.przeterminowany & 0x01);	//kociol zasilanie
+				OneWire_wyswietl_pomiar(1, LCD_row4, 2,  &OneWire_CZUJNIK[1].H, &OneWire_CZUJNIK[1].L, OneWire_STATUS.przeterminowany & 0x02);	//kociol powrot
+				OneWire_wyswietl_pomiar(0, LCD_row2, 13, &OneWire_CZUJNIK[2].H, &OneWire_CZUJNIK[2].L, OneWire_STATUS.przeterminowany & 0x04);	//CWU
+				OneWire_wyswietl_pomiar(0, LCD_row3, 13, &OneWire_CZUJNIK[3].H, &OneWire_CZUJNIK[3].L, OneWire_STATUS.przeterminowany & 0x20);	//grzejniki zasilanie
+				OneWire_wyswietl_pomiar(0, LCD_row4, 13, &OneWire_CZUJNIK[4].H, &OneWire_CZUJNIK[4].L, OneWire_STATUS.przeterminowany & 0x40);	//podlogowka
 				
 				LCD_print(2, 13, 3, LCD_row2);
 				LCD_print(3, 2, 14, LCD_row3);
@@ -470,10 +564,8 @@ void OneWire_READ(uint8_t OneWire_AS, uint8_t* sensor1, uint8_t* sensor2, uint8_
 void OneWire_wyswietl_pomiar(uint8_t mode, char *LCDrow, uint8_t poz, uint8_t *sensorH, uint8_t *sensorL, uint8_t przeterminowanie)
 {
 	uint8_t tempH;
-	uint8_t tempL;
-	
+
 	tempH = *sensorH;
-	tempL  =  0;
 	
 	if(przeterminowanie)
 	{
@@ -487,8 +579,8 @@ void OneWire_wyswietl_pomiar(uint8_t mode, char *LCDrow, uint8_t poz, uint8_t *s
 			LCDrow[poz+4] = 0x2D; //dziesietne
 		}
 		
-		*sensorL = 0;
-		*sensorH = 0;
+		//*sensorL = 0;
+		//*sensorH = 0;
 	}
 	else
 	{
@@ -506,15 +598,9 @@ void OneWire_wyswietl_pomiar(uint8_t mode, char *LCDrow, uint8_t poz, uint8_t *s
 		LCDrow[poz+2] += 0x30;
 		
 		if(mode == 1)	//dziesietne
-		{
-			tempL  =  6 * (0x01 &  *sensorL);
-			tempL += 12 * (0x01 & (*sensorL >> 1));
-			tempL += 25 * (0x01 & (*sensorL >> 2));
-			tempL += 50 * (0x01 & (*sensorL >> 3));
-			
+		{	
 			LCDrow[poz+3] = 0x2E;   //kropka
-			LCDrow[poz+4] = (tempL / 10);		//dziesietne
-			LCDrow[poz+4] += 0x30;
+			LCDrow[poz+4] = *sensorL + 0x30;		//dziesietne
 		}
 	}
 }

@@ -38,10 +38,13 @@ void SPI_handling(void)
 {	
 	if(nrBajtuISP == 4)
 	{		
-		tempSpalin_niewiarygodny = (MAX6670_reg >> 1) & 0x01;
+		tempSpalin_niewiarygodny = (MAX6670_reg >> 2) & 0x01;
 		tempSpalin = (MAX6670_reg >> 3) & 0xFFF;
 		tempSpalin /= 4;
 		
+		//if(tempSpalin >= 1000)
+		//	tempSpalin_niewiarygodny = 1;
+
 		SPI_wyswietl_pomiar();
 		nrBajtuISP = 0;
 		//Time_delay(1000000, (uint8_t *)&nrBajtuISP, 0);
@@ -84,30 +87,30 @@ void SPI_wyswietl_pomiar(void)
 			LCD_row2[3] = 0x2D;		//setki
 			LCD_row2[4] = 0x2D;		//dziesiatki
 			LCD_row2[5] = 0x2D;		//jednostki
-			LCD_row2[6] = 0x20;
 		}
 		else
-		{
-			LCD_row2[3] = (tempSpalin / 1000);  //tysiace
-			tempSpalin = tempSpalin - LCD_row2[3] * 1000;
+		{	
+			LCD_row2[3] = (tempSpalin / 100);  //setki
+			tempSpalin = tempSpalin - LCD_row2[3] * 100;
 			LCD_row2[3] += 0x30;
-			if(LCD_row2[3] == 0x30)
-			Display_offset = 0;
-			else
-			Display_offset = 1;
 			
-			LCD_row2[3+Display_offset] = (tempSpalin / 100);  //setki
-			tempSpalin = tempSpalin - LCD_row2[3+Display_offset] * 100;
-			LCD_row2[3+Display_offset] += 0x30;
+			if(LCD_row2[3] == 0x30)
+			{
+				Display_offset = 0;
+				LCD_row2[5] = 0x20;
+			}
+			else
+				Display_offset = 1;
+			
 			//if(LCDrow[poz] == 0x30) LCDrow[poz] = 0x20;
 			
-			LCD_row2[4+Display_offset] = (tempSpalin / 10);   //dziesiatki
-			tempSpalin = tempSpalin - LCD_row2[4+Display_offset] * 10;
-			LCD_row2[4+Display_offset] += 0x30;
+			LCD_row2[3+Display_offset] = (tempSpalin / 10);   //dziesiatki
+			tempSpalin = tempSpalin - LCD_row2[3+Display_offset] * 10;
+			LCD_row2[3+Display_offset] += 0x30;
 			
-			LCD_row2[5+Display_offset] = tempSpalin;          //jednostki
-			LCD_row2[5+Display_offset] += 0x30;
+			LCD_row2[4+Display_offset] = tempSpalin;          //jednostki
+			LCD_row2[4+Display_offset] += 0x30;
 		}
-		LCD_print(2, 4, 4, LCD_row2);
+		LCD_print(2, 3, 3, LCD_row2);
 	}
 }

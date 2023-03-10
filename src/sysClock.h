@@ -11,19 +11,20 @@
 
 #include <avr/io.h>
 
-#define SC_kolejka_max		6
+//#define SC_kolejka_max		6
 
 volatile uint8_t SC_pozycjaKolejki;
+volatile uint8_t N_mnoznikLicznika;
 
 struct SClk_ctr {
-	volatile uint8_t cykl;				//wartosc kwantow licznika T2 do odliczenia
-	volatile uint8_t komparator;			//wartosc rejestru komparatora
 	volatile uint64_t opoznienie;		//opoznienie w us
 	volatile uint8_t *wskaznik_aktywacja;
 	volatile uint8_t *wskaznik_step;
 };
 
-volatile struct SClk_ctr sysClock[SC_kolejka_max];
+//volatile struct SClk_ctr sysClock[SC_kolejka_max];
+//volatile struct SClk_ctr *sysClock;
+struct SClk_ctr *sysClock;
 
 
 void Time_setup(void);

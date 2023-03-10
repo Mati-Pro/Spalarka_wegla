@@ -11,7 +11,7 @@
 
 #include <avr/io.h>
 
-#define LCD_kolejka_max		6
+//#define LCD_kolejka_max		6
 
 #define LCD_RS 8
 #define LCD_EN 9
