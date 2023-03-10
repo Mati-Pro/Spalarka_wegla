@@ -50,6 +50,8 @@ void Program_glowny(void);
 void Menu_godzina(void);
 void Menu_data(void);
 void Menu_tempX(uint8_t poz_tab, uint8_t poz_pom, struct _HL_type *sensor, uint8_t przetermin, struct Nas_temp *tempX);
+void Menu_nastawySpalania(void);
+void Menu_nastawyPostoj(void);
 
 uint8_t ileDniMiesiaca(void);
 

@@ -11,7 +11,8 @@
 
 #include "USART.h"
 
-//#define _DEBUG_
+#define _DEBUG_
+
 //#define _DEBUG_LCD_init_
 //#define _DEBUG_sysEnc_
 

@@ -7,6 +7,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include "mainPRG.h"
 #include "sysTWI.h"
 #include "sysLCD.h"
@@ -25,25 +26,58 @@ extern struct Nas_temp Temp_CWU;
 extern struct Nas_temp Temp_CO;
 extern struct Nas_temp Temp_Mx;
 
-extern struct _HL_type OneWire_SENSOR[5];
+extern struct _HL_type OneWire_CZUJNIK[5];
 extern struct OneWire_st OneWire_STATUS;
 
 struct zegar RTC_zegar;
 struct data RTC_data;
 struct men Menu = {0};
 
-const char* dniTygodnia[] = {"PN", "WT", "SR", "CZ", "PT", "SO", "ND"};
-const char* Menu_poz[] = {"Wyjscie        ","Temp. CWU      ","Temp. kotla    ","Temp. mieszacza","Godzina        ","Data           "};
+const char Napis_MENU[]	PROGMEM = "--- MENU ---";
+const char Napis_Wyjscie[] PROGMEM = "Wyjscie";
 
+const char Dzien_tygodnia1[] PROGMEM = "PN";
+const char Dzien_tygodnia2[] PROGMEM = "WT";
+const char Dzien_tygodnia3[] PROGMEM = "SR";
+const char Dzien_tygodnia4[] PROGMEM = "CZ";
+const char Dzien_tygodnia5[] PROGMEM = "PT";
+const char Dzien_tygodnia6[] PROGMEM = "SO";
+const char Dzien_tygodnia7[] PROGMEM = "ND";
+
+const char * const Dzien_tygodnia[] PROGMEM = {
+	Dzien_tygodnia1, Dzien_tygodnia2, Dzien_tygodnia3,
+	Dzien_tygodnia4, Dzien_tygodnia5, Dzien_tygodnia6, 
+	Dzien_tygodnia7	};
+	
+
+const char Menu1[] PROGMEM = "Wyjscie         ";
+const char Menu2[] PROGMEM = "Temp. CWU       ";
+const char Menu3[] PROGMEM = "Temp. kotla     ";
+const char Menu4[] PROGMEM = "Temp. mieszacza ";
+const char Menu5[] PROGMEM = "Podawanie-praca ";
+const char Menu6[] PROGMEM = "Podawanie-postoj";
+const char Menu7[] PROGMEM = "Ogranicznik mocy";
+const char Menu8[] PROGMEM = "Godzina         ";
+const char Menu9[] PROGMEM = "Data            ";
+
+const char * const Menu_pozycja[] PROGMEM = {
+	Menu1,	Menu2,	Menu3,	Menu4,	Menu5,	Menu6,
+	Menu7,	Menu8,	Menu9	};
+
+#define Ilosc_Pozycji_Menu (sizeof Menu_pozycja / sizeof *Menu_pozycja)
 
 void Ekran_glowny(void)
-{
-	LCD_row2[1] = 0x53; LCD_row2[12] = 0x43;	//S C
-	LCD_row3[0] = 0x7F; LCD_row3[1] = 0x4B;  LCD_row3[12] = 0x47;	//<K	G
-	LCD_row4[0] = 0x7E; LCD_row4[1] = 0x4B;  LCD_row4[12] = 0x50;	//>K	P
+{	
+	LCD_row2[1] = 'S'; LCD_row2[12] = 'C';	//S C
+	LCD_row3[0] = 0x7F; LCD_row3[1] = 'K';  LCD_row3[12] = 'G';	//<K	G
+	LCD_row4[0] = 0x7E; LCD_row4[1] = 'K';  LCD_row4[12] = 'P';	//>K	P
+	
 	OneWire_wyswietl_pomiar(0, LCD_row2, 16, &(Temp_CWU.war), 0, 0);
 	OneWire_wyswietl_pomiar(0, LCD_row3, 7, &(Temp_CO.war), 0, 0);
 	OneWire_wyswietl_pomiar(0, LCD_row3, 16, &(Temp_Mx.war), 0, 0);
+	
+	//printByte(sizeof Menu_pozycja);
+	//printString("\r\n");
 }
 
 
@@ -67,7 +101,7 @@ void Program_glowny(void)
 			LCD_print(1, 0, 11, LCD_row1);
 		}
 		
-		if((Menu.aktywacja & 0x02) && (Menu.pozTab == 4))	//wyswietlanie jesli jestes w ustaweniach godziny
+		if((Menu.aktywacja & 0x02) && (Menu.pozTab == (Ilosc_Pozycji_Menu - 2)))	//wyswietlanie jesli jestes w ustaweniach godziny
 		{
 			RTC_kalk_Time(LCD_row2, 4);
 			LCD_print(2, 4, 11, LCD_row2);
@@ -91,19 +125,19 @@ void Program_glowny(void)
 	}
 	
 
-	if((Menu.aktywacja & 0x01))		//MENU Glownym, ale nie Ustawienia
+	if((Menu.aktywacja & 0x01))		//MENU Glownye, ale nie Ustawienia
 	{
 		if((Menu.aktywacja & 0x04))	//drukujRaz
 		{
 			Menu.aktywacja &= ~(0x04);	//drukujRaz = false;
-			LCD_row1[8] = 0x4D; LCD_row1[9] = 0x45; LCD_row1[10] = 0x4E; LCD_row1[11] = 0x55;	//napis MENU
 			
-			for(uint8_t i=0; i < 15; i++)
-			{
-				LCD_row2[3+i] = *(Menu_poz[Menu.pozWys]+i);
-				LCD_row3[3+i] = *(Menu_poz[Menu.pozWys+1]+i);
-				LCD_row4[3+i] = *(Menu_poz[Menu.pozWys+2]+i);
-			}
+			LCD_row1[8] = 'M'; LCD_row1[9] = 'E'; LCD_row1[10] = 'N'; LCD_row1[11] = 'U';	//napis MENU
+			
+			//strcpy_P(&LCD_row1[4], (PGM_P)pgm_read_word(&Napis_MENU));	LCD_row2[16] = ' ';
+			
+			strcpy_P(&LCD_row2[3], (PGM_P)pgm_read_word(&(Menu_pozycja[Menu.pozWys])));		LCD_row2[19] = ' ';
+			strcpy_P(&LCD_row3[3], (PGM_P)pgm_read_word(&(Menu_pozycja[Menu.pozWys+1])));	LCD_row3[19] = ' ';
+			strcpy_P(&LCD_row4[3], (PGM_P)pgm_read_word(&(Menu_pozycja[Menu.pozWys+2])));	LCD_row4[19] = ' ';
 			
 			switch (Menu.pozEkranu)	//Pozycja strzalki
 			{
@@ -130,7 +164,7 @@ void Program_glowny(void)
 		
 		switch (Enc_kierunek)
 		{
-			case 1:   //przewijanie pozycji Menu w lewo
+			case 1:   //przewijanie pozycji Menu w lewo (gora)
 			Enc_kierunek = 0;
 			
 			if((Menu.pozEkranu == 1) && (Menu.pozWys > 0))
@@ -142,10 +176,10 @@ void Program_glowny(void)
 			Menu.aktywacja |= 0x04;	//drukuj raz
 			break;
 			
-			case 2:    //przewijanie pozycji Menu w prawo
+			case 2:    //przewijanie pozycji Menu w prawo (dol)
 			Enc_kierunek = 0;
 			
-			if((Menu.pozEkranu == 3) && (Menu.pozWys < 3))
+			if((Menu.pozEkranu == 3) && (Menu.pozWys < Ilosc_Pozycji_Menu-3))
 			Menu.pozWys++;
 			
 			if(Menu.pozEkranu < 3)
@@ -167,30 +201,42 @@ void Program_glowny(void)
 
 	if (Menu.aktywacja & 0x02) //jesli jestes w MENU w ustawieniach wewnetrznych
 	{
-		if ((Menu.aktywacja & 0x04) && (Menu.pozTab > 0))
-		{
-			for(uint8_t i=0; i < 15; i++)
-			LCD_row1[i] = *(Menu_poz[Menu.pozTab]+i);
+		if ((Menu.aktywacja & 0x04) && (Menu.pozTab > 0))	//Drukowanie napisu w ustawieniach
+		{	
+			strcpy_P(LCD_row1, (PGM_P)pgm_read_word(&(Menu_pozycja[Menu.pozTab])));
+			LCD_row1[16] = ' ';
 		}
 		
 		switch (Menu.pozTab)  {
 			case 1:   //ustawiene temperatury CWU
-			Menu_tempX(Menu.pozTab,  9, &OneWire_SENSOR[2], OneWire_STATUS.przeterminowany & 0x04, &Temp_CWU);
+			Menu_tempX(Menu.pozTab,  9, &OneWire_CZUJNIK[2], OneWire_STATUS.przeterminowany & 0x04, &Temp_CWU);
 			break;
 
 			case 2:   //ustawiene temperatury Kotla
-			Menu_tempX(Menu.pozTab, 11, &OneWire_SENSOR[0], OneWire_STATUS.przeterminowany & 0x01, &Temp_CO);
+			Menu_tempX(Menu.pozTab, 11, &OneWire_CZUJNIK[0], OneWire_STATUS.przeterminowany & 0x01, &Temp_CO);
 			break;
 
 			case 3:   //ustawiene temperatury Mieszczacza
-			Menu_tempX(Menu.pozTab, 11, &OneWire_SENSOR[3], OneWire_STATUS.przeterminowany & 0x20, &Temp_Mx);
+			Menu_tempX(Menu.pozTab, 11, &OneWire_CZUJNIK[3], OneWire_STATUS.przeterminowany & 0x20, &Temp_Mx);
 			break;
 
-			case 4:   //ustawiene godziny
+			case 4:   //ustawiene nastaw spalania - praca
+			Menu_nastawySpalania();
+			break;
+			
+			case 5:   //ustawiene nastaw spalania - postoj
+			Menu_nastawyPostoj();
+			break;
+			
+			case 6:   //ogranicznik mocy
+			//Menu_godzina();
+			break;
+			
+			case 7:   //ustawiene godziny
 			Menu_godzina();
 			break;
 
-			case 5:   //ustawienie daty
+			case 8:   //ustawienie daty
 			Menu_data();
 			break;
 
@@ -199,11 +245,11 @@ void Program_glowny(void)
 			LCD_clear_bufor();
 			RTC_kalk_Time(LCD_row1, 0);
 			Ekran_glowny();
-			OneWire_wyswietl_pomiar(1, LCD_row3, 2,  &OneWire_SENSOR[0].H, &OneWire_SENSOR[0].L, OneWire_STATUS.przeterminowany & 0x01);	//kociol zasilanie
-			OneWire_wyswietl_pomiar(1, LCD_row4, 2,  &OneWire_SENSOR[1].H, &OneWire_SENSOR[1].L, OneWire_STATUS.przeterminowany & 0x02);	//kociol powrot
-			OneWire_wyswietl_pomiar(0, LCD_row2, 13, &OneWire_SENSOR[2].H, &OneWire_SENSOR[2].L, OneWire_STATUS.przeterminowany & 0x04);	//CWU
-			OneWire_wyswietl_pomiar(0, LCD_row3, 13, &OneWire_SENSOR[3].H, &OneWire_SENSOR[3].L, OneWire_STATUS.przeterminowany & 0x20);	//grzejniki zasilanie
-			OneWire_wyswietl_pomiar(0, LCD_row4, 13, &OneWire_SENSOR[4].H, &OneWire_SENSOR[4].L, OneWire_STATUS.przeterminowany & 0x40);	//podlogowka
+			OneWire_wyswietl_pomiar(1, LCD_row3, 2,  &OneWire_CZUJNIK[0].H, &OneWire_CZUJNIK[0].L, OneWire_STATUS.przeterminowany & 0x01);	//kociol zasilanie
+			OneWire_wyswietl_pomiar(1, LCD_row4, 2,  &OneWire_CZUJNIK[1].H, &OneWire_CZUJNIK[1].L, OneWire_STATUS.przeterminowany & 0x02);	//kociol powrot
+			OneWire_wyswietl_pomiar(0, LCD_row2, 13, &OneWire_CZUJNIK[2].H, &OneWire_CZUJNIK[2].L, OneWire_STATUS.przeterminowany & 0x04);	//CWU
+			OneWire_wyswietl_pomiar(0, LCD_row3, 13, &OneWire_CZUJNIK[3].H, &OneWire_CZUJNIK[3].L, OneWire_STATUS.przeterminowany & 0x20);	//grzejniki zasilanie
+			OneWire_wyswietl_pomiar(0, LCD_row4, 13, &OneWire_CZUJNIK[4].H, &OneWire_CZUJNIK[4].L, OneWire_STATUS.przeterminowany & 0x40);	//podlogowka
 			SPI_wyswietl_pomiar();	//spaliny
 			LCD_wyslij_bufor();
 			break;
@@ -220,12 +266,15 @@ void Menu_tempX(uint8_t poz_tab, uint8_t poz_pom, struct _HL_type *sensor, uint8
 		
 		LCD_row1[poz_pom] = 0x20; LCD_row1[poz_pom+1] = 0x3D;	// = temp
 		OneWire_wyswietl_pomiar(1, LCD_row1, poz_pom+2, &(sensor->H), &(sensor->L), przetermin);	//CWU
-		LCD_row2[3] = 0x54; LCD_row2[5] = 0x3D;	//T =
+		
+		LCD_row2[3] = 'T'; LCD_row2[5] = '=';	//T =
 		OneWire_wyswietl_pomiar(0, LCD_row2, 6, &(tempX->war), 0, 0);
-		LCD_row3[3] = 0x68; LCD_row3[5] = 0x3D;	//h =
+		
+		LCD_row3[3] = 'h'; LCD_row3[5] = '=';	//h =
 		OneWire_wyswietl_pomiar(2, LCD_row3, 6, &(tempX->his), 0, 0);
-		LCD_row4[3] = 0x57; LCD_row4[4] = 0x79; LCD_row4[5] = 0x6A; LCD_row4[6] = 0x73;
-		LCD_row4[7] = 0x63; LCD_row4[8] = 0x69; LCD_row4[9] = 0x65;	//Wyjscie
+		
+		LCD_row4[3] = 'W'; LCD_row4[4] = 'y'; LCD_row4[5] = 'j'; LCD_row4[6] = 's';
+		LCD_row4[7] = 'c'; LCD_row4[8] = 'i'; LCD_row4[9] = 'e';	//Wyjscie
 		
 		switch (Menu.pozUstaw & 0x03)
 		{
@@ -336,6 +385,249 @@ void Menu_tempX(uint8_t poz_tab, uint8_t poz_pom, struct _HL_type *sensor, uint8
 }
 
 
+void Menu_nastawySpalania(void)
+{
+	if (Menu.aktywacja & 0x04)
+	{
+		Menu.aktywacja &= ~(0x04);	//drukujRaz = false;
+		
+		LCD_row2[3] = 0x54; LCD_row2[4] = 0x6f; LCD_row2[5] = 0x6e; LCD_row2[8] = 0x3D;//Ton =
+		
+		LCD_row3[3] = 0x54; LCD_row3[4] = 0x6f; LCD_row3[5] = 0x66; LCD_row3[6] = 0x66; LCD_row3[8] = 0x3D;//Ton =
+		
+		LCD_row4[3] = 0x57; LCD_row4[4] = 0x79; LCD_row4[5] = 0x6A; LCD_row4[6] = 0x73;
+		LCD_row4[7] = 0x63; LCD_row4[8] = 0x69; LCD_row4[9] = 0x65;	//Wyjscie
+		
+		switch (Menu.pozUstaw & 0x03)
+		{
+			case 2:
+			if(Menu.pozUstaw & 0x04)
+			{
+				LCD_row2[1] = 0x20;
+				LCD_row2[10] = 0x7F;
+			}
+			else
+			{
+				LCD_row2[10] = 0x20;
+				LCD_row2[1] = 0x7E;
+				LCD_row3[1] = 0x20;
+				LCD_row4[1] = 0x20;
+			}
+			break;
+			
+			case 3:
+			if(Menu.pozUstaw & 0x04)
+			{
+				LCD_row3[1] = 0x20;
+				LCD_row3[10] = 0x7F;
+			}
+			else
+			{
+				LCD_row3[10] = 0x20;
+				LCD_row2[1] = 0x20;
+				LCD_row3[1] = 0x7E;
+				LCD_row4[1] = 0x20;
+			}
+			break;
+			
+			case 1:
+			LCD_row2[1] = 0x20;
+			LCD_row3[1] = 0x20;
+			LCD_row4[1] = 0x7E;
+			break;
+		}
+		LCD_wyslij_bufor();
+	}
+	
+	switch (Enc_kierunek)
+	{
+		case 1:   //przewijanie pozycji Menu Ustawien w lewo
+		Enc_kierunek = 0;
+		if(Menu.pozUstaw & 0x04)
+		{
+			//if((tempX->war > 1) && ((Menu.pozUstaw & 0x03) == 2))
+			//tempX->war--;
+			
+			//if((tempX->his > 1) && ((Menu.pozUstaw & 0x03) == 3))
+			//tempX->his--;
+		}
+		else
+		{
+			if(Menu.pozUstaw > 1)
+			Menu.pozUstaw--;
+			else
+			Menu.pozUstaw = 3;
+		}
+		Menu.aktywacja |= 0x04;	//drukuj raz
+		break;
+		
+		case 2:    //przewijanie pozycji Menu w prawo
+		Enc_kierunek = 0;
+		if(Menu.pozUstaw & 0x04)
+		{
+			//if((tempX->war < 99) && ((Menu.pozUstaw & 0x03) == 2))
+			//tempX->war++;
+			
+			//if((tempX->his < 10) && ((Menu.pozUstaw & 0x03) == 3))
+			//tempX->his++;
+		}
+		else
+		{
+			if(Menu.pozUstaw < 3)
+			Menu.pozUstaw++;
+			else
+			Menu.pozUstaw = 1;
+		}
+		
+		Menu.aktywacja |= 0x04;	//drukuj raz
+		break;
+
+		case 4:   //wejscie do pozycji Menu
+		Enc_kierunek = 0;
+		
+		if((Menu.pozUstaw & 0x03) == 1)
+		{
+			//RTC_reg[0] = tempX->war;	//zapis wartosci do pamieci RTC_RAM
+			//RTC_reg[1] = tempX->his;
+			//TWI_access(RTC_ADRES, 4, 6+(poz_tab*2), RTC_reg, 1, 0);	//RAM od rejestru 0x08 RTC
+			
+			Menu.aktywacja = 0x01;
+			LCD_clear_bufor();
+		}
+		else
+		{
+			if(Menu.pozUstaw & 0x04)
+			Menu.pozUstaw &= ~0x04;
+			else
+			Menu.pozUstaw |= 0x04;
+		}
+		Menu.aktywacja |= 0x04;
+		break;
+	}	
+}
+
+
+void Menu_nastawyPostoj(void)
+{
+	if (Menu.aktywacja & 0x04)
+	{
+		Menu.aktywacja &= ~(0x04);	//drukujRaz = false;
+		
+		LCD_row2[3] = 0x54; LCD_row2[4] = 0x6f; LCD_row2[5] = 0x6e; LCD_row2[8] = 0x3D;//Ton =
+		
+		LCD_row3[3] = 0x54; LCD_row3[4] = 0x6f; LCD_row3[5] = 0x66; LCD_row3[6] = 0x66; LCD_row3[8] = 0x3D;//Ton =
+		
+		LCD_row4[3] = 0x57; LCD_row4[4] = 0x79; LCD_row4[5] = 0x6A; LCD_row4[6] = 0x73;
+		LCD_row4[7] = 0x63; LCD_row4[8] = 0x69; LCD_row4[9] = 0x65;	//Wyjscie
+		
+		switch (Menu.pozUstaw & 0x03)
+		{
+			case 2:
+			if(Menu.pozUstaw & 0x04)
+			{
+				LCD_row2[1] = 0x20;
+				LCD_row2[10] = 0x7F;
+			}
+			else
+			{
+				LCD_row2[10] = 0x20;
+				LCD_row2[1] = 0x7E;
+				LCD_row3[1] = 0x20;
+				LCD_row4[1] = 0x20;
+			}
+			break;
+			
+			case 3:
+			if(Menu.pozUstaw & 0x04)
+			{
+				LCD_row3[1] = 0x20;
+				LCD_row3[10] = 0x7F;
+			}
+			else
+			{
+				LCD_row3[10] = 0x20;
+				LCD_row2[1] = 0x20;
+				LCD_row3[1] = 0x7E;
+				LCD_row4[1] = 0x20;
+			}
+			break;
+			
+			case 1:
+			LCD_row2[1] = 0x20;
+			LCD_row3[1] = 0x20;
+			LCD_row4[1] = 0x7E;
+			break;
+		}
+		LCD_wyslij_bufor();
+	}
+	
+	switch (Enc_kierunek)
+	{
+		case 1:   //przewijanie pozycji Menu Ustawien w lewo
+		Enc_kierunek = 0;
+		if(Menu.pozUstaw & 0x04)
+		{
+			//if((tempX->war > 1) && ((Menu.pozUstaw & 0x03) == 2))
+			//tempX->war--;
+			
+			//if((tempX->his > 1) && ((Menu.pozUstaw & 0x03) == 3))
+			//tempX->his--;
+		}
+		else
+		{
+			if(Menu.pozUstaw > 1)
+			Menu.pozUstaw--;
+			else
+			Menu.pozUstaw = 3;
+		}
+		Menu.aktywacja |= 0x04;	//drukuj raz
+		break;
+		
+		case 2:    //przewijanie pozycji Menu w prawo
+		Enc_kierunek = 0;
+		if(Menu.pozUstaw & 0x04)
+		{
+			//if((tempX->war < 99) && ((Menu.pozUstaw & 0x03) == 2))
+			//tempX->war++;
+			
+			//if((tempX->his < 10) && ((Menu.pozUstaw & 0x03) == 3))
+			//tempX->his++;
+		}
+		else
+		{
+			if(Menu.pozUstaw < 3)
+			Menu.pozUstaw++;
+			else
+			Menu.pozUstaw = 1;
+		}
+		
+		Menu.aktywacja |= 0x04;	//drukuj raz
+		break;
+
+		case 4:   //wejscie do pozycji Menu
+		Enc_kierunek = 0;
+		
+		if((Menu.pozUstaw & 0x03) == 1)
+		{
+			//RTC_reg[0] = tempX->war;	//zapis wartosci do pamieci RTC_RAM
+			//RTC_reg[1] = tempX->his;
+			//TWI_access(RTC_ADRES, 4, 6+(poz_tab*2), RTC_reg, 1, 0);	//RAM od rejestru 0x08 RTC
+			
+			Menu.aktywacja = 0x01;
+			LCD_clear_bufor();
+		}
+		else
+		{
+			if(Menu.pozUstaw & 0x04)
+			Menu.pozUstaw &= ~0x04;
+			else
+			Menu.pozUstaw |= 0x04;
+		}
+		Menu.aktywacja |= 0x04;
+		break;
+	}
+}
+
 
 void Menu_godzina(void)
 {
@@ -344,8 +636,8 @@ void Menu_godzina(void)
 		Menu.aktywacja &= ~(0x04);	//drukujRaz = false;
 		RTC_kalk_Time(LCD_row2, 4);
 		
-		LCD_row4[4] = 0x57; LCD_row4[5] = 0x79; LCD_row4[6] = 0x6A; LCD_row4[7] = 0x73;
-		LCD_row4[8] = 0x63; LCD_row4[9] = 0x69; LCD_row4[10] = 0x65;	//Wyjscie
+		LCD_row4[4] = 'W'; LCD_row4[5] = 'y'; LCD_row4[6] = 'j'; LCD_row4[7] = 's';
+		LCD_row4[8] = 'c'; LCD_row4[9] = 'i'; LCD_row4[10] = 'e';	//Wyjscie
 		
 		switch (Menu.pozUstaw & 0x07)
 		{
@@ -455,14 +747,6 @@ void Menu_godzina(void)
 				RTC_reg[0] = (RTC_zegar.minuta.d << 4) | RTC_zegar.minuta.j;
 				TWI_access(RTC_ADRES, 4, 1, RTC_reg, 0, 0);
 			}
-			/*
-			if((Menu.pozUstaw & 0x07) == 5)	//kasowanie sekund
-			{
-				RTC_zegar.sekunda.j = 0;
-				RTC_zegar.sekunda.d = 0;
-				RTC_reg[0] = 0;
-				TWI_access(RTC_ADRES, 4, 0, RTC_reg, 0, 0);
-			}*/
 		}
 		else
 		{
@@ -525,14 +809,6 @@ void Menu_godzina(void)
 				RTC_reg[0] = (RTC_zegar.minuta.d << 4) | RTC_zegar.minuta.j;
 				TWI_access(RTC_ADRES, 4, 1, RTC_reg, 0, 0);
 			}
-			/*
-			if((Menu.pozUstaw & 0x07) == 5)	//kasowanie sekund
-			{
-				RTC_zegar.sekunda.j = 0;
-				RTC_zegar.sekunda.d = 0;
-				RTC_reg[0] = 0;
-				TWI_access(RTC_ADRES, 4, 0, RTC_reg, 0, 0);
-			}*/
 		}
 		else
 		{
@@ -563,12 +839,11 @@ void Menu_godzina(void)
 		else
 		{
 			Menu.pozUstaw ^= 0x08;
-			/*
-			if(Menu.pozUstaw & 0x08)
-			Menu.pozUstaw &= ~0x08;
-			else
-			Menu.pozUstaw |= 0x08;
-			*/
+			
+			//if(Menu.pozUstaw & 0x08)
+			//Menu.pozUstaw &= ~0x08;
+			//else
+			//Menu.pozUstaw |= 0x08;
 		}
 
 		Menu.aktywacja |= 0x04;
@@ -590,8 +865,8 @@ void Menu_data(void)
 		Menu.aktywacja &= ~(0x04);	//drukujRaz = false;
 		RTC_kalk_Data(LCD_row2, 4);
 		
-		LCD_row4[4] = 0x57; LCD_row4[5] = 0x79; LCD_row4[6] = 0x6A; LCD_row4[7] = 0x73;
-		LCD_row4[8] = 0x63; LCD_row4[9] = 0x69; LCD_row4[10] = 0x65;	//Wyjscie
+		LCD_row4[4] = 'W'; LCD_row4[5] = 'y'; LCD_row4[6] = 'j'; LCD_row4[7] = 's';
+		LCD_row4[8] = 'c'; LCD_row4[9] = 'i'; LCD_row4[10] = 'e';	//Wyjscie
 		
 		switch (Menu.pozUstaw & 0x07)
 		{
@@ -886,32 +1161,36 @@ void RTC_konwertuj(void)
 
 void RTC_kalk_Time(char *tab, uint8_t poz)
 {
-	tab[poz] = *dniTygodnia[RTC_data.nrDnia-1];
-	tab[poz+1] = *(dniTygodnia[RTC_data.nrDnia-1]+1);
+	char buff[3];
 	
-	tab[poz+3] = RTC_zegar.godzina.d + 0x30;
-	tab[poz+4] = RTC_zegar.godzina.j + 0x30;
-	tab[poz+5] = 0x3A;
-	tab[poz+6] = RTC_zegar.minuta.d + 0x30;
-	tab[poz+7] = RTC_zegar.minuta.j + 0x30;
-	tab[poz+8] = 0x3A;
-	tab[poz+9] = RTC_zegar.sekunda.d + 0x30;
-	tab[poz+10] = RTC_zegar.sekunda.j + 0x30;
+	strcpy_P(buff, (PGM_P)pgm_read_word(&(Dzien_tygodnia[RTC_data.nrDnia-1])));
+	
+	tab[poz] = buff[0];
+	tab[poz+1] = buff[1];
+	
+	tab[poz+3] = RTC_zegar.godzina.d + '0';
+	tab[poz+4] = RTC_zegar.godzina.j + '0';
+	tab[poz+5] = ':';
+	tab[poz+6] = RTC_zegar.minuta.d + '0';
+	tab[poz+7] = RTC_zegar.minuta.j + '0';
+	tab[poz+8] = ':';
+	tab[poz+9] = RTC_zegar.sekunda.d + '0';
+	tab[poz+10] = RTC_zegar.sekunda.j + '0';
 }
 
 
 void RTC_kalk_Data(char *tab, uint8_t poz)
 {
-	tab[poz] = 0x32;
-	tab[poz+1] = 0x30;
-	tab[poz+2] = RTC_data.rok.d + 0x30;
-	tab[poz+3] = RTC_data.rok.j + 0x30;
-	tab[poz+4] = 0x2E;
-	tab[poz+5] = RTC_data.miesiac.d + 0x30;
-	tab[poz+6] = RTC_data.miesiac.j + 0x30;
-	tab[poz+7] = 0x2E;
-	tab[poz+8] = RTC_data.dzien.d + 0x30;
-	tab[poz+9] = RTC_data.dzien.j + 0x30;
+	tab[poz] = '2';
+	tab[poz+1] = '0';
+	tab[poz+2] = RTC_data.rok.d + '0';
+	tab[poz+3] = RTC_data.rok.j + '0';
+	tab[poz+4] = '.';
+	tab[poz+5] = RTC_data.miesiac.d + '0';
+	tab[poz+6] = RTC_data.miesiac.j + '0';
+	tab[poz+7] = '.';
+	tab[poz+8] = RTC_data.dzien.d + '0';
+	tab[poz+9] = RTC_data.dzien.j + '0';
 }
 
 

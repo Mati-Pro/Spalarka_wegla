@@ -22,7 +22,7 @@ uint8_t SysStatus;
 uint8_t RTC_odczyt;
 uint8_t RTC_reg[8];
 
-extern struct _HL_type OneWire_SENSOR[5];
+extern struct _HL_type OneWire_CZUJNIK[5];
 extern struct OneWire_st OneWire_STATUS;
 extern volatile uint8_t nrBajtuISP;
 
@@ -67,11 +67,11 @@ int main(void)
    
    LCD_clear_bufor();
    Ekran_glowny();
-   OneWire_wyswietl_pomiar(1, LCD_row3, 2,  &OneWire_SENSOR[0].H, &OneWire_SENSOR[0].L, OneWire_STATUS.przeterminowany & 0x01);	//kociol zasilanie
-   OneWire_wyswietl_pomiar(1, LCD_row4, 2,  &OneWire_SENSOR[1].H, &OneWire_SENSOR[1].L, OneWire_STATUS.przeterminowany & 0x02);	//kociol powrot
-   OneWire_wyswietl_pomiar(0, LCD_row2, 13, &OneWire_SENSOR[2].H, &OneWire_SENSOR[2].L, OneWire_STATUS.przeterminowany & 0x04);	//CWU
-   OneWire_wyswietl_pomiar(0, LCD_row3, 13, &OneWire_SENSOR[3].H, &OneWire_SENSOR[3].L, OneWire_STATUS.przeterminowany & 0x20);	//grzejniki zasilanie
-   OneWire_wyswietl_pomiar(0, LCD_row4, 13, &OneWire_SENSOR[4].H, &OneWire_SENSOR[4].L, OneWire_STATUS.przeterminowany & 0x40);	//podlogowka
+   OneWire_wyswietl_pomiar(1, LCD_row3, 2,  &OneWire_CZUJNIK[0].H, &OneWire_CZUJNIK[0].L, OneWire_STATUS.przeterminowany & 0x01);	//kociol zasilanie
+   OneWire_wyswietl_pomiar(1, LCD_row4, 2,  &OneWire_CZUJNIK[1].H, &OneWire_CZUJNIK[1].L, OneWire_STATUS.przeterminowany & 0x02);	//kociol powrot
+   OneWire_wyswietl_pomiar(0, LCD_row2, 13, &OneWire_CZUJNIK[2].H, &OneWire_CZUJNIK[2].L, OneWire_STATUS.przeterminowany & 0x04);	//CWU
+   OneWire_wyswietl_pomiar(0, LCD_row3, 13, &OneWire_CZUJNIK[3].H, &OneWire_CZUJNIK[3].L, OneWire_STATUS.przeterminowany & 0x20);	//grzejniki zasilanie
+   OneWire_wyswietl_pomiar(0, LCD_row4, 13, &OneWire_CZUJNIK[4].H, &OneWire_CZUJNIK[4].L, OneWire_STATUS.przeterminowany & 0x40);	//podlogowka
    LCD_wyslij_bufor();
    
    
